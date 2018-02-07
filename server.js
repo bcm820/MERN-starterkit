@@ -3,15 +3,18 @@
 const express = require('express')
 const app = express()
 
-require('./server/config/config')(app)
+require('./server/config/middleware').activate(app)
 require('./server/config/mongoose')
 
-const auth = require('./server/routes/auth')
-app.use('/api', auth)
+const router = express.Router()
+require('./server/routes/public')(router)
+require('./server/routes/private')(router)
+app.use('/api', router)
 
-app.get('/*', (req, res) => {
-	res.sendFile(path.resolve(__dirname, './client/src/index.html'))
-})
+// const path = require('path')
+// app.get('/*', (req, res) => {
+// 	res.sendFile(path.resolve(__dirname, './client/src/index.html'))
+// })
 
 const port = process.env.PORT || 8000
 app.listen(port, () => {

@@ -1,66 +1,54 @@
-const User      = require('mongoose').model('User');
-const bcrypt    = require('bcryptjs');
+const User      = require('mongoose').model('User')
+const bcrypt    = require('bcryptjs')
 const jwt       = require('jsonwebtoken')
+const secret    = require('../config/middleware').jwtSecret
+
+const sendRes = (res, message, success = false, token = null) => {
+    return res.json({
+        message: message,
+        success: success,
+        token: token
+    })
+}
+
+const verify = (user, res) => {
+    bcrypt.hash(user.password, 10, (err, hashedPass) => {
+        user.password = hashedPass;
+        user.save()
+        .then(user => assignToken(user, res))
+        .catch(err => sendRes(res, 'Error: Input invalid.'))
+    })
+}
+
+const checkPassword = (user, res) => {
+    user.checkPW(req.body.password)
+    .then(valid => assignToken(user, res))
+    .catch(err => sendRes(res, 'Error: Password invalid.'))
+}
+
+const assignToken = (user, res) => {
+    const payload = {username: user.username}
+    const token = jwt.sign(payload, secret, {expiresIn: '2hr'})
+    return sendRes(res, 'Welcome! Logging in.', true, token)
+}
 
 module.exports = {
-
-    sendMsg(s, m) {
-        return {success: s, msg: m}
-    },
-
-// Registration
-
+    
     register(req, res) {
         const user = new User(req.body)
         User.count({username: req.body.username})
         .then(count => {
-            if(count) res.json(sendMsg(false, 'Error: Username taken.'))
-            else verify(user, req.session, res.json)
+            if(count) return sendRes(res, 'Error: Username taken.')
+            else return verify(user, res)
         })
     },
 
-    verify(user, session, json) {
-        bcrypt.hash(user.password, 10, (err, hashedPass) => {
-            user.password = hashedPass;
-            user.save()
-            .then(user => {
-                session.uid = user._id; // change to jwt!
-                json(sendMsg(true, `Welcome, ${user.first}! Logging in...`))
-            })
-            .catch(err => json(sendMsg(false, 'Error: Input invalid.')))
-        })
-    },
-
-// Login
-    
     login(req, res){
         User.findOne({username: req.body.username})
         .then(user => {
-            if(!user) res.json(sendMsg(false, 'Error: No user found.'))
-            else authenticate(user, req.session, res.json)
+            if(!user) return sendRes(res, 'Error: User not found.')
+            else return checkPassword(user, res)
         })
-    },
-
-    authenticate(user, session, json){
-        user.checkPW(req.body.password, (err, good) => {
-            if(good) {
-                
-                const payload = {user: user.username}
-                jwt.sign(payload, app.get('jwt'), {expiresIn: '8h'})
-                
-                session.uid = user._id; // change this to JWT!
-                json(sendMsg(true, `Welcome! Logging you in...`))
-            }
-            else json(sendMsg(false, 'Error: Input invalid.'))
-        })
-    },
-
-// Logout
-
-    // deletes user ID from session
-    logout(req, res) {
-        req.session.uid = undefined;
-        res.json(sendMsg(true, `Session ended.`))
     }
 
 }

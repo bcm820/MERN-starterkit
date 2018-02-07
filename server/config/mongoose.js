@@ -1,4 +1,3 @@
-
 // require mongoose and supporting modules
 const mongoose = require('mongoose')
 const path = require('path')
