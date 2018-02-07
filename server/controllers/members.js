@@ -12,13 +12,14 @@ const sendRes = (res, message, success = false) => {
 module.exports = {
 
     authenticate(req, res, next) {
-        const token = req.body.token
-            || req.headers['x-access-token']
-            || req.query.token
+        const token = req.headers['x-access-token']
         if (token) jwt.verify(token, secret, (err, user) => {
             if (err) return sendRes(res, 'Error: Access denied.')
-            else req.user = user
-            next()
+            else {
+                req.user = user
+                console.log(req.user)
+                next()
+            }
         })
         else return sendRes(res, 'Error: No token provided.')
     },
@@ -26,7 +27,7 @@ module.exports = {
     getInfo(req, res) {
         User.find({username: req.user.username})
         .then(user => res.json(user))
-        .catch(err => res.send(401))
+        .catch(err => res.json(err))
     }
 
 }
