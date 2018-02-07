@@ -20,7 +20,7 @@ const verify = (user, res) => {
     })
 }
 
-const checkPassword = (user, res) => {
+const checkPassword = (user, req, res) => {
     user.checkPW(req.body.password)
     .then(valid => assignToken(user, res))
     .catch(err => sendRes(res, 'Error: Password invalid.'))
@@ -47,7 +47,7 @@ module.exports = {
         User.findOne({username: req.body.username})
         .then(user => {
             if(!user) return sendRes(res, 'Error: User not found.')
-            else return checkPassword(user, res)
+            else return checkPassword(user, req, res)
         })
     }
 

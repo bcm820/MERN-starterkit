@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
+const bcrypt = require('bcryptjs')
 
 const UserSchema = new Schema({
     username: String,
@@ -8,9 +9,9 @@ const UserSchema = new Schema({
 
 // check password prior to login
 UserSchema.methods.checkPW = function(password) {
-	const self = this
+	const user = this
 	return new Promise((resolve, reject) => {
-		bcrypt.compare(password, self.password)
+		bcrypt.compare(password, user.password)
 		.then(res => {
 			if(!res) reject("Error: Password invalid.")
 			else resolve()
