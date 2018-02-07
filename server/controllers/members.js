@@ -13,14 +13,14 @@ module.exports = {
 
     authenticate(req, res, next) {
         const token = req.body.token
-        || req.headers['x-access-token']
-        || req.query.token
-        if (token) jwt.verify(token, secret, (err, decoded) => {
-            if (err) return sendRes(res, 'Unable to authenticate.')
-            else req.user = decoded
+            || req.headers['x-access-token']
+            || req.query.token
+        if (token) jwt.verify(token, secret, (err, user) => {
+            if (err) return sendRes(res, 'Error: Access denied.')
+            else req.user = user
             next()
         })
-        else return sendRes(res, 'No token provided.')
+        else return sendRes(res, 'Error: No token provided.')
     },
     
     getInfo(req, res) {

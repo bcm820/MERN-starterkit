@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const path = require('path')
 
 // connect mongoose and configure path
-mongoose.connect('mongodb://localhost/userDashboard')
+mongoose.connect('mongodb://localhost/mernStarter')
 mongoose.set('debug', true)
 const models_path = path.join(__dirname, '../models/')
 mongoose.Promise = global.Promise;
