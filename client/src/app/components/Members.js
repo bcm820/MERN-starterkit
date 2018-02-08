@@ -1,13 +1,12 @@
 import React from 'react'
 import axios from 'axios'
 
+// On mount of protected route:
+// Axios will request private data using stored token
+// JWT will decode token and use it to query MongoDB for data
+// In this case, data is just a username
 class Members extends React.Component {
 
-  // On mount of protected route:
-  // Axios will request private data using stored token
-  // JWT will decode token and use it to query MongoDB for data
-  // In this case, data is just a username
-  
   state = { username: '' }
 
   componentDidMount() {
