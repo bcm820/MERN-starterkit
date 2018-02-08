@@ -1,10 +1,20 @@
 import React from 'react'
 import axios from 'axios'
-import createHistory from "history/createBrowserHistory"
+import { Redirect } from 'react-router-dom'
 
 class Form extends React.Component {
 
-  state = { error: '' }
+  state = {
+    error: '',
+    redirect: false
+  }
+
+  // If form used to register, POST request sent to server
+  // Server responds with token for automatic login
+  // Login function called to store generated token locally
+  // If form used to login, PUT request sent to request token
+  // If token received, stored locally
+  // Updating state.redirect triggers re-render with <Redirect>
 
   submitForm = event => {
       event.preventDefault()
@@ -30,8 +40,7 @@ class Form extends React.Component {
   login = data => {
     if (data.token) {
       localStorage.setItem('token', data.token)
-      const history = createHistory()
-      return history.push('/members')
+      this.setState({redirect: true})
     } else {
       axios.put('/api/auth', data)
       .then(res => {
@@ -49,30 +58,20 @@ class Form extends React.Component {
   }
 
   render = props => {
-      return (
+    return (
       <form onSubmit={this.submitForm}>
           <h2>{this.props.title}</h2>
           <div>
-            <label>
-              Username: <input
-                ref={node => this.username = node}/>
-            </label>
+            <label>Username: <input ref={node => this.username = node}/></label>
           </div>
           <div>
-            <label>
-              Password: <input
-                ref={node => this.password = node}type="password"/>
-            </label>
+            <label>Password: <input ref={node => this.password = node}type="password"/></label>
           </div>
           <div>
-              <input type="submit"
-                ref={node => this.action = node}
-                value={this.props.title}/>
-              <span style={{
-                color: 'red',
-                fontSize: 10
-              }}> {this.state.error} </span>
+              <input type="submit" ref={node => this.action = node} value={this.props.title}/>
+              <span style={{ color: 'red', fontSize: 10 }}> {this.state.error} </span>
           </div>
+          {this.state.redirect && <Redirect to={'/members'}/>}
       </form>
     )
   }

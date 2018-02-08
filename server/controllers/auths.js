@@ -3,6 +3,7 @@ const bcrypt    = require('bcryptjs')
 const jwt       = require('jsonwebtoken')
 const secret    = require('../config/middleware').jwtSecret
 
+// sendRes used to format messages sent to front
 const sendRes = (res, message, success = false, token = null) => {
     return res.json({
         message: message,
@@ -11,6 +12,8 @@ const sendRes = (res, message, success = false, token = null) => {
     })
 }
 
+// If username available on registration, this verifies/hashes PW
+// If user successfully saved, JWT assigned for auto-login
 const verify = (user, res) => {
     bcrypt.hash(user.password, 10, (err, hashedPass) => {
         user.password = hashedPass;
@@ -20,15 +23,19 @@ const verify = (user, res) => {
     })
 }
 
+// Bcrypt on User model compares password input to encrypted pass
+// If valid, JWT assigned for auto-login
 const checkPassword = (user, req, res) => {
     user.checkPW(req.body.password)
     .then(valid => assignToken(user, res))
     .catch(err => sendRes(res, 'Error: Password invalid.'))
 }
 
+// Stored token is the user's username encrypted
+// If user does not logout, JWT expires after 1 hour
 const assignToken = (user, res) => {
     const payload = {username: user.username}
-    const token = jwt.sign(payload, secret, {expiresIn: '2hr'})
+    const token = jwt.sign(payload, secret, {expiresIn: '1hr'})
     return sendRes(res, 'Welcome! Logging in.', true, token)
 }
 

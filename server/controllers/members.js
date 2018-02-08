@@ -2,6 +2,7 @@ const User      = require('mongoose').model('User')
 const jwt       = require('jsonwebtoken')
 const secret    = require('../config/middleware').jwtSecret
 
+// sendRes used to format messages sent to front
 const sendRes = (res, message, success = false) => {
     return res.json({
         message: message,
@@ -25,7 +26,7 @@ module.exports = {
     
     getInfo(req, res) {
         User.findOne({username: req.user.username})
-        .then(user => res.json(user.username))
+        .then(user => res.json(user))
         .catch(err => res.json(err))
     }
 
