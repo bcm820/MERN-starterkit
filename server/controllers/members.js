@@ -17,7 +17,6 @@ module.exports = {
             if (err) return sendRes(res, 'Error: Access denied.')
             else {
                 req.user = user
-                console.log(req.user)
                 next()
             }
         })
@@ -25,8 +24,8 @@ module.exports = {
     },
     
     getInfo(req, res) {
-        User.find({username: req.user.username})
-        .then(user => res.json(user))
+        User.findOne({username: req.user.username})
+        .then(user => res.json(user.username))
         .catch(err => res.json(err))
     }
 
